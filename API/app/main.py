@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.databse import SessionLocal, init_db
 from app.modelMebel import Mebel
@@ -64,9 +64,12 @@ def delete_mebel(db: Session, db_obj: Mebel):
 # ----------------------
 # Endpoints
 # ----------------------
-@app.get("/mebel", response_model=List[MebelOut])
-def read_meble(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return get_meble(db, skip, limit)
+@app.get("/mebel", response_model=list[MebelOut])
+def read_meble(kupione: Optional[bool] = None, db: Session = Depends(get_db)):
+    query = db.query(Mebel)
+    if kupione is not None:
+        query = query.filter(Mebel.kupione == kupione)
+    return query.all()
 
 @app.get("/mebel/{mebel_id}", response_model=MebelOut)
 def read_mebel(mebel_id: int, db: Session = Depends(get_db)):

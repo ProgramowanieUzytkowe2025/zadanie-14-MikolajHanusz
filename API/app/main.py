@@ -5,9 +5,19 @@ from typing import List
 from app.databse import SessionLocal, init_db
 from app.modelMebel import Mebel
 from app.schemas import MebelCreate, MebelUpdate, MebelOut
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Initialize FastAPI app
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize DB tables on startup
 @app.on_event("startup")

@@ -91,7 +91,11 @@ def update_mebel_endpoint(mebel_id: int, mebel: MebelUpdate, db: Session = Depen
 
 @app.delete("/mebel/{mebel_id}", status_code=204)
 def delete_mebel_endpoint(mebel_id: int, db: Session = Depends(get_db)):
-    db_obj = get_mebel(db, mebel_id)
-    if not db_obj:
-        raise HTTPException(status_code=404, detail="Mebel not found")
-    delete_mebel(db, db_obj)
+    mebel = db.query(Mebel).filter(Mebel.id == mebel_id).first()
+    if not mebel:
+        raise HTTPException(status_code=404, detail="Mebel nie istnieje")
+    if mebel.kupione is False:  # blokada dla kupione=false
+        raise HTTPException(status_code=400, detail="Nie można usunąć mebla, który nie został kupiony")
+    db.delete(mebel)
+    db.commit()
+    return {"detail": "Usunięto mebel"}
